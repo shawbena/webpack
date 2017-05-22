@@ -37,6 +37,7 @@ let config = {
             filename: 'index.html'
         })
     ]
+    
 };
 
 module.exports = config;
