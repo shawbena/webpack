@@ -9,3 +9,49 @@ loader  特性
 * loader 能够使用 options 对象进行配置
 * 插件可以为 loader 带来更多特性
 loader 通过（loader）预处理函，为 JavaScript 生态系统提供了更多有力功能。用户现在可以更加灵活的引入细粒度的逻辑，如压缩，打包、语言翻译和其他更多（https://doc.webpack-china.org/loaders）。
+
+配置
+通过配置文件
+
+```js
+module: {
+    rules: [
+        test: /\.css$/,
+        use: [
+            {
+                loader: 'style-loader'
+            },
+            {
+                loader: 'css-loader',
+                options: {
+                    modules: true
+                }
+            }
+        ]
+    ]
+}
+```
+
+```js
+{test: /\.css$, loader: 'css-loader'/}
+//or equivalently
+{test: /\.css$/, use: 'css-loader'}
+//or equivalently
+{test: /\.css$/, use: {
+    loader: 'css-loader',
+    options: {}
+}}
+```
+
+在 require() 语句中使用 loader
+
+```js
+require('style-loader!css-loader?modules!./styles.css');
+//可用查询字符串 (?key=value&foo=bar) 或 JSON (?{"key":"value","foo":"bar"}) 对象传递 options
+```
+
+通过命令行
+
+```js
+webpack --module-bind jade-loader --module-bind 'css=style-loader!css-loader'
+```
