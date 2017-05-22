@@ -55,3 +55,7 @@ require('style-loader!css-loader?modules!./styles.css');
 ```js
 webpack --module-bind jade-loader --module-bind 'css=style-loader!css-loader'
 ```
+
+解析 loaders
+loaders 遵循标准的 module resolution (https://webpack.js.org/concepts/module-resolution/). 大多情况下 loader 来自于 module path (https://webpack.js.org/concepts/module-resolution/#module-paths)
+一个 loader 模块被期望输出一个函数并是以 NodeJS 兼容的 JavaScript. 大多情况下你管理你的 loader 用 npm, 但是你的应用中也可有可作为 loader 的文件。习惯上 loader 通常以 xxx-loader 命名。更多信息见 How to Write a Loader (https://webpack.js.org/development/how-to-write-a-loader).
