@@ -1,0 +1,23 @@
+{
+  "name": "webpack-example-002",
+  "version": "1.0.0",
+  "description": "webpack example",
+  "main": "bundle.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "webpack"
+  ],
+  "author": "zhaoda",
+  "liscense": "",
+  "devDependencies": {
+    "css-loader": "^0.21.0",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "style-loader": "^0.13.0",
+    "webpack": "^1.12.2"
+  },
+  "dependencies": {
+    "extract-text-webpack-plugin": "^1.0.1"
+  }
+}
