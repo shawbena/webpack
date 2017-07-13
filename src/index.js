@@ -1,28 +1,25 @@
-// import _ from 'lodash';
+import _ from 'lodash';
 import './style.scss';
-import './info.scss';
-import infoHtml from './html/info.html';
-import FloatingLogo from './images/floating-logo.png';
-import Data from './data.xml';
+import printMe from './print.js';
 
 function component(){
     var element = createElement('div');
-    
-    // element.innerHTML = _.join(['Hello', 'webpack'], ' ');
-    element.innerHTML = 'Hello webpack';
-    element.classList.add('hello');
+    var btn = createElement('button');
 
-    //add the image to our existing div
-    var myIcon = new Image();
-    myIcon.src = FloatingLogo;
-    element.appendChild(myIcon);
+    element.innerHTML = _.join(['Hello', 'webpack'], ' ');
 
-    querySelector('#page').innerHTML = infoHtml;
+    btn.innerHTML = 'Click me and check the console!';
+    btn.onclick = printMe;
+    element.appendChild(btn);
 
-    console.log(Data, JSON.stringify(Data));
     return element;
 }
 
+appendChild(component());
+
+function appendChild(childElement){
+    document.body.appendChild(childElement);
+}
 function querySelector(selector){
     return document.querySelector(selector);
 }
@@ -30,4 +27,3 @@ function createElement(str){
     return document.createElement(str);
 }
 
-document.body.appendChild(component());

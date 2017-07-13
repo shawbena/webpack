@@ -1,9 +1,14 @@
 let path = require('path');
+let HtmlWebpackPlugin = require('html-webpack-plugin');
+let CleanWebpackPlugijn = require('clean-webpack-plugin');
 
 module.exports = {
-    entry: './src/index.js',
+    entry: {
+        app: './src/index.js',
+        print: './src/print.js'
+    },
     output: {
-        filename: 'bundle.js',
+        filename: './dist/[name].bundle.js',
         path: path.resolve(__dirname)
     },
     module: {
@@ -62,5 +67,13 @@ module.exports = {
                 ]
             }
         ]
-    }
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+            title: 'Output Management',
+            filename: 'index.html',
+            // template: 'src/index.html'
+        }),
+        new CleanWebpackPlugijn(['dist'])
+    ]
 };
