@@ -30,3 +30,22 @@ webpack 使用正则表达式决定查找哪个文件用于特定的 loader. 这
 
 ## Global Assets
 
+上面我们提到过的最酷的就是，以这样的方式加载 assets 使得你以更直观的方式将模块和 assets 组织在一块。你可以将 asserts 和用得到他们的代码放在一组，而非依赖包含一切的 `/assets` 目录。如下面的结构会非常有用：
+
+```structure
+- |- /assets
++ |- /components
++ |  |- /my-component
++ |  |  |- index.jsx
++ |  |  |- index.css
++ |  |  |- icon.svg
++ |  |  |- img.png
+```
+
+这个设置使得你的代码有很多便携性，因为关系密切的放在一块。假设你在另一个项目中想用 `/my-component`, 仅拷贝一下或把他移动到那里的 `/components` 目录就可以了。只要你安装了所有外部依赖且你的配置有同样定义的 loaders, 你就可以这么做。
+
+然而，假设你受限于你老的方式或者你有一些多个组件 (views, templates, modules, etc) 之间共享的 assets. 仍然可以在一个基目录存储这些 assets 并且使用 [aliasing](https://webpack.js.org/configuration/resolve#resolve-alias) 来使他们更易 `import`
+
+## 结尾
+
+下一个指南我们用的 asserts 和这节不山口王，所以让我们做一些清理工作以便为下节的指南 [Output Management](https://webpack.js.org/guides/output-management/) 做准备。
