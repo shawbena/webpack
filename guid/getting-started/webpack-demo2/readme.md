@@ -41,3 +41,41 @@ module.exports = {
 ```bash
 ./node_modules/.bin/webpack --config webpack.config.js
 ```
+
+如果有 `webpack.config.js`, `webpack` 命令将默认挑中他。此处我们使用 `--config` 选项只是展示下你可以传递任意名称的配置文件。对于需要分成多个文件的复杂配置来说是很有用的。
+
+一个配置文件带来的灵活性远比简单的 CLI 用法灵活得多。能过这样的方式我们可以指定 loader 规则，plugins, 解析选项和很多其他的其他的增强功能。见[配置文件](https://webpack.js.org/configuration)以学习更多。
+
+## NPM 脚本
+
+鉴于从 CLI 运行本地复本的 webpack 不是那么有趣，我们可以建立一个小小的快捷方式。让我们往 package.json 中添加一个 [npm script](https://docs.npmjs.com/misc/scripts):
+
+package.json
+
+```json
+...
+"script": {
+  "build": "webpack"
+}
+...
+```
+
+现在可用 `npm run build` 来替代我们之前用的长长的命令行。在 `scripts` 中我们可以通过名称引用本地安装的 npm 包而不用写出完整的路径。这种习俗在大多基于 npm 的项目中是标准的并且允许我们直接调用 `webpack` 而非 `node_modules/webpack/bin/webpack.js`
+
+## Conclusion
+
+现在你已经有一个基本的构建，你该去下个指南 `Asset Management` 学习下怎样用 webpack 管理 assets 如 images 和 fonts. 至此你泊项目结构应该是这样子：
+
+``` structure
+webpack-demo
+|- package.json
+|- webpack.config.js
+|- /dist
+  |- bundle.js
+  |- index.html
+|- /src
+  |- index.js
+|- /node_modules
+```
+
+如果你想了解更多关于 webpack 的设计，你可以学习下 [basic concepts](https://webpack.js.org/concepts)和 [configuration](https://webpack.js.org/configuration) 页面。更多深入 [AIP](https://webpack.js.org/api) 章节 webpack 提供的各种接口。
