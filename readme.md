@@ -1,35 +1,87 @@
-# Output Management
+# Code Splitting
 
-目前我们手动地在 `index.html` 上文件中引入我人们的 asserts, 但是是随着我们的应用程序成长且一旦你[在文件名中用哈希](https://webpack.js.org/guides/caching)并且有 [mutiple bundles](https://webpack.js.org/guides/code-splitting) 手动管理 `index.html` 将很困难。不过，你不担心，有几个插件可以使这个过程管理起来更简单。
+这篇指南扩展了 [Getting Started](https://webpack.js.org/guides/getting-started) 和 [Managing Built Files](https://webpack.js.org/guides/output-management) 中的例子。请确保你至少熟悉其中的一个例子。
 
-## 设置 HtmlWebpackPlugin
+Code spliting 是 webpack 中最引人眼球的特色之一。这个特色使得可以将你的代码分成各种 bundles 稍后按需或并行加载。他可用于获得更小的 bundles 和控制资源加载优化，如果使用得当，可对加载时间产生强大的冲击。
 
-如果我们改变了入口点名称或添加了一个新的，那会生成新的 bundle, 但我们的 `index.html` 文件中仍引用着老的 bundle. 让我们用 [HtmlWebpackPlugin](https://webpack.js.org/plugins/html-webpack-plugin) 来解决这个问题。
+常见的 code splittting 的三种方式：
 
-在我们 build 之前，你应该知道 `HtmlWebpackPlugin` 默认会生成自己的 `index.html` 文件，即使 `dist/` 目录中已经有一个了。这意味着他将用最新生成的替代我们的 `index.html`。让我们 `npm run build` 看看会发生什么:
+- Entry Points: 使用 [entry](https://webpack.js.org/configuration/entry-context)配置手动分割代码。
 
-如果你在编辑器中打开 `index.html`，你将会看到 `HtmlWebpackPlugin` 已经创建了一个全新的文件并且自动加上了所有的 bundles.
+- Prevent Duplication: 使用 [CommonsChunkPlugin](https://webpack.js.org/plugins/commons-chunk-plugin) 删除重复资料并分割 chunks.
 
-如果你了解 `HtmlWebpackPlugin` 提供的所有特色和选项，那你可以参考下 [HtmlWebpackPlugin](https://github.com/jantimon/html-webpack-plugin).
+- 动态 imports: 通进模块中的内联函数调用分割代码。
 
-你也可以看下 [html-webpack-templte](https://github.com/jaketrent/html-webpack-template) 看年除了默认的模板外还有什么额外的特色。
+## Entry Points
 
-## 清理 `/dist` 文件夹
+这是目前最容易，也是最直观的分割代码的方式。然而这有点手动并且会遇到一些陷阱。让我们看看怎样从主 bundle 中分割出另一个模块：
 
-你可能已经注意到了从之前的指南和 代码示例，我们的 `/dist` folder 已经变得乱七八槽了。Webpack 生成文件并将他们放在 `dist` 目录下，但他不追踪哪个文件在我们项目中真的用到。
+正如我们上面提的过的这种方式有陷阱：
 
-通常每次 build 都清理下 `/dist` 文件夹是个很好的实践，因此只有用到的文件才会生成。让我们负起责任来。
+- 如果 entry chunks 之间有重复的模块，将都包括在 bundles 中。
 
-一个很流行的管理这个的插件是 [clean-webpack-plugin](https://www.npmjs.com/package/clean-webpack-plugin), 让我们安装并配置他。
+- 不灵活，也不能动态分割出核心代码逻辑。
 
-现在你运行 `npm run build` 并视察 `/dist` 目录，如果一切顺利你将会看到生成的文件并且不再有老文件了！
+```bash output
+Hash: 7f680dab2c0aa67e49dd
+Version: webpack 3.2.0
+Time: 1178ms
+                                       Asset       Size  Chunks                    Chunk Names
+./fonts/ed63b8f1167ac0a209f465a5d3f47e33.otf     105 kB          [emitted]         
+                        ./dist/app.bundle.js     561 kB       0  [emitted]  [big]  app
+                    ./dist/another.bundle.js     544 kB       1  [emitted]  [big]  another
+                                  index.html  267 bytes          [emitted]         
+   [1] (webpack)/buildin/global.js 509 bytes {0} {1} [built]
+   [2] (webpack)/buildin/module.js 517 bytes {0} {1} [built]
+   [3] ./src/index.js 643 bytes {0} [built]
+   [4] ./src/style.scss 1.16 kB {0} [built]
+   [5] ./node_modules/css-loader!./node_modules/sass-loader/lib/loader.js?{}!./src/style.scss 356 bytes {0} [built]
+   [7] ./src/fonts/exo.otf 90 bytes {0} [built]
+  [10] ./src/print.js 84 bytes {0} [built]
+  [11] ./src/another-module.js 90 bytes {1} [built]
+    + 4 hidden modules
+Child html-webpack-plugin for "index.html":
+       [2] (webpack)/buildin/global.js 509 bytes {0} [built]
+       [3] (webpack)/buildin/module.js 517 bytes {0} [built]
+        + 2 hidden modules
+```
 
-## Manifest
+首先我们例子中的这两个点绝对是一个问题，因为 `./src/index.js` 也引入了 `lodash`, 因此将会在 bundle 中重复。让我们用 `CommonsChunkPlugin` 移除重复。
 
-你可能会好奇 webpack 及其插件似乎知道该该生成什么文件。答案在 webpack 追踪的 manifest 以便知道所有的模块是如何生成到输出 bundles 的。可用 [WebpackManifestPlugin](https://github.com/danethurber/webpack-manifest-plugin) 将 manifest 数据提取成 json 文件以便研究一下。
+## Prevent Duplication
 
-We won't go through a full example of how to use this plugin within your projects, but you can read up on [the concept page](https://webpack.js.org/concepts/manifest) and the [caching guid](https://webpack.js.org/guides/caching) to find out how this ties into long term caching.
+[CommonsChunkPlugin](https://webpack.js.org/plugins/commons-chunk-plugin) 使得我们把通用的依赖提取成一个 entry chunk 或者一个全新的 chunk. 让我们用这从前一个例子中移除重复的 `lodash` 依赖：
 
-## Conclusion
+用上了 `CommonsChunkPlugin`, 我们应该看到重复的依赖已经从 `index.bundle.js` 中移除了。插件应该注意到了我们想把 `lodash` 分割成一个独立的 chunk 并将其从我们的主 bundle 中移除。让我们  `npm run build` 看下他是否好用：
 
-现丰你已学习了如何动态地往 HTML 添加 bundles, 让我们进入下一章 [Development](https://webpack.js.org/guides/development) 吧。如果你想学习更高级的话题，我们建议你跳至 [Code Splitting](https://webpack.js.org/guides/code-splitting) 指南。
+```bash output
+Hash: 5056cf16b35b36a135ab
+Version: webpack 3.2.0
+Time: 1003ms
+                                       Asset       Size  Chunks                    Chunk Names
+./fonts/ed63b8f1167ac0a209f465a5d3f47e33.otf     105 kB          [emitted]
+                        ./dist/app.bundle.js      17 kB       0  [emitted]         app
+                    ./dist/another.bundle.js  541 bytes       1  [emitted]         another
+                     ./dist/common.bundle.js     547 kB       2  [emitted]  [big]  common
+                                  index.html  337 bytes          [emitted]
+   [1] ./src/index.js 457 bytes {0} [built]
+   [2] (webpack)/buildin/global.js 509 bytes {2} [built]
+   [3] (webpack)/buildin/module.js 517 bytes {2} [built]
+   [4] ./src/style.scss 1.16 kB {0} [built]
+   [5] ./node_modules/css-loader!./node_modules/sass-loader/lib/loader.js?{}!./src/style.scss 356 bytes {0} [built]
+   [7] ./src/fonts/exo.otf 90 bytes {0} [built]
+  [10] ./src/another-module.js 90 bytes {1} [built]
+    + 4 hidden modules
+Child html-webpack-plugin for "index.html":
+       [2] (webpack)/buildin/global.js 509 bytes {0} [built]
+       [3] (webpack)/buildin/module.js 517 bytes {0} [built]
+        + 2 hidden modules
+```
+
+正面是社区提供的一些用于分割代码的有用的插件和 loader：
+
+- [ExtractTextPlugin](https://webpack.js.org/plugins/extract-text-webpack-plugin): 用于从主应用程序中分割 CSS.
+- [bundle-loader](https://webpack.js.org/loaders/bundle-loader): 用于分割代码和懒加载结果 bundles.
+- [promise-loader](https://github.com/gaearon/promise-loader): 类似 `bundle-loader` 但用 promise.
+
+*`CommonsChunkPlugin`* 也[explicit vendor chunks](https://webpack.js.org/plugins/commons-chunk-plugin/#explicit-vendor-chunk) 用于从核心应用代码中分割 vendors 模块。

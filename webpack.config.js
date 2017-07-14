@@ -1,11 +1,12 @@
 let path = require('path');
+let webpack = require('webpack');
 let HtmlWebpackPlugin = require('html-webpack-plugin');
 let CleanWebpackPlugijn = require('clean-webpack-plugin');
 
 module.exports = {
     entry: {
         app: './src/index.js',
-        print: './src/print.js'
+        another: './src/another-module.js'
     },
     output: {
         filename: './dist/[name].bundle.js',
@@ -70,10 +71,13 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            title: 'Output Management',
+            title: 'Code Splitting',
             filename: 'index.html',
             // template: 'src/index.html'
         }),
-        new CleanWebpackPlugijn(['dist'])
+        new CleanWebpackPlugijn(['dist']),
+        new webpack.optimize.CommonsChunkPlugin({
+            name: 'common'  // Specify the common bundle's name.
+        })
     ]
 };
