@@ -85,3 +85,43 @@ Child html-webpack-plugin for "index.html":
 - [promise-loader](https://github.com/gaearon/promise-loader): 类似 `bundle-loader` 但用 promise.
 
 *`CommonsChunkPlugin`* 也[explicit vendor chunks](https://webpack.js.org/plugins/commons-chunk-plugin/#explicit-vendor-chunk) 用于从核心应用代码中分割 vendors 模块。
+
+## Dynamic Imports
+
+当涉及到动态代码分割时 webpack 支持两种相似的技术。第一种也是更好的方式是使用 [import() syntax](https://webpack.js.org/api/module-methods#import-), 这也是遵照 [ECMAScript proposal](https://github.com/tc39/proposal-dynamic-import) 的动态引入。老的，webpack 特写的方式是用 [require.ensure](https://webpack.js.org/api/module-methods#require-ensure)。让我们试着用用两种方式中的第一个...
+
+在开始前，让我们先从配置文件中移除额外的 `entry` 和 `CommonsChunkPlugin`，接下来的演示已经不需要了：
+
+更新我们的项目移除无用的文件：
+
+现在我们将要用动态引入分割一个独立的 chunk，而非静态的引入 `lodash`:
+
+如果你通过像 babel 这样的预处理器启用了 [async function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function), 注意你可以简化代码 因为 `import` 语句中返回 promises:
+
+```js
+- function getComponent() {
++ async function getComponent() {
+-   return import(/* webpackChunkName: "lodash" */ 'lodash').then(module => {
+-     var element = document.createElement('div');
+-
+-     element.innerHTML = _.join(['Hello', 'webpack'], ' ');
+-
+-     return element;
+-
+-   }).catch(error => 'An error occurred while loading the component');
++   var element = document.createElement('div');
++   const _ = await import(/* webpackChunkName: "lodash" */ 'lodash');
++
++   element.innerHTML = _.join(['Hello', 'webpack'], ' ');
++
++   return element;
+  }
+
+  getComponent().then(component => {
+    document.body.appendChild(component);
+  });
+```
+
+## 接下来
+
+看看 [Lazy loading](https://webpack.js.org/guides/lazy-loading) 更具体的 `import()` 可用于真实应用程序的详细例子，和 [Caching](https://webpack.js.org/guides/caching) 学习下怎样更加有效的分割代码。

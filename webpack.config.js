@@ -1,15 +1,14 @@
 let path = require('path');
-let webpack = require('webpack');
 let HtmlWebpackPlugin = require('html-webpack-plugin');
 let CleanWebpackPlugijn = require('clean-webpack-plugin');
 
 module.exports = {
     entry: {
-        app: './src/index.js',
-        another: './src/another-module.js'
+        app: './src/index.js'
     },
     output: {
         filename: './dist/[name].bundle.js',
+        chunkFilename: './dist/[name].bundle.js',
         path: path.resolve(__dirname)
     },
     module: {
@@ -71,13 +70,10 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            title: 'Code Splitting',
+            title: 'Code Splitting - Dynamic Imports',
             filename: 'index.html',
             // template: 'src/index.html'
         }),
-        new CleanWebpackPlugijn(['dist']),
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'common'  // Specify the common bundle's name.
-        })
+        new CleanWebpackPlugijn(['dist'])
     ]
 };
