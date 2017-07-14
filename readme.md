@@ -21,3 +21,15 @@
 通常每次 build 都清理下 `/dist` 文件夹是个很好的实践，因此只有用到的文件才会生成。让我们负起责任来。
 
 一个很流行的管理这个的插件是 [clean-webpack-plugin](https://www.npmjs.com/package/clean-webpack-plugin), 让我们安装并配置他。
+
+现在你运行 `npm run build` 并视察 `/dist` 目录，如果一切顺利你将会看到生成的文件并且不再有老文件了！
+
+## Manifest
+
+你可能会好奇 webpack 及其插件似乎知道该该生成什么文件。答案在 webpack 追踪的 manifest 以便知道所有的模块是如何生成到输出 bundles 的。可用 [WebpackManifestPlugin](https://github.com/danethurber/webpack-manifest-plugin) 将 manifest 数据提取成 json 文件以便研究一下。
+
+We won't go through a full example of how to use this plugin within your projects, but you can read up on [the concept page](https://webpack.js.org/concepts/manifest) and the [caching guid](https://webpack.js.org/guides/caching) to find out how this ties into long term caching.
+
+## Conclusion
+
+现丰你已学习了如何动态地往 HTML 添加 bundles, 让我们进入下一章 [Development](https://webpack.js.org/guides/development) 吧。如果你想学习更高级的话题，我们建议你跳至 [Code Splitting](https://webpack.js.org/guides/code-splitting) 指南。
