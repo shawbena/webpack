@@ -68,12 +68,17 @@ module.exports = {
             }
         ]
     },
+    devtool: 'inline-source-map',
+    devServer: {
+        contentBase: './'
+    },
     plugins: [
         new HtmlWebpackPlugin({
-            title: 'Output Management',
+            title: 'Development',
             filename: 'index.html',
             // template: 'src/index.html'
         }),
         new CleanWebpackPlugijn(['dist'])
-    ]
+    ],
+    // devtool: 'inline-source-map'
 };

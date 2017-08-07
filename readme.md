@@ -1,35 +1,143 @@
-# Output Management
+# Development
 
-目前我们手动地在 `index.html` 上文件中引入我人们的 asserts, 但是是随着我们的应用程序成长且一旦你[在文件名中用哈希](https://webpack.js.org/guides/caching)并且有 [mutiple bundles](https://webpack.js.org/guides/code-splitting) 手动管理 `index.html` 将很困难。不过，你不担心，有几个插件可以使这个过程管理起来更简单。
+这篇指南是在 [Output Management](https://webpack.js.org/guides/output-management) 指南上扩展的。
 
-## 设置 HtmlWebpackPlugin
+如果你一直在跟进指南，你应该对 webpack 的基础有牢固的理解。在开始前，让我们研究下设置个开发环境来使我们的工作更加轻松。
 
-如果我们改变了入口点名称或添加了一个新的，那会生成新的 bundle, 但我们的 `index.html` 文件中仍引用着老的 bundle. 让我们用 [HtmlWebpackPlugin](https://webpack.js.org/plugins/html-webpack-plugin) 来解决这个问题。
+本指南中的的工具仅适用于开发，生产中请避免使用！！
 
-在我们 build 之前，你应该知道 `HtmlWebpackPlugin` 默认会生成自己的 `index.html` 文件，即使 `dist/` 目录中已经有一个了。这意味着他将用最新生成的替代我们的 `index.html`。让我们 `npm run build` 看看会发生什么:
+## Using source maps
 
-如果你在编辑器中打开 `index.html`，你将会看到 `HtmlWebpackPlugin` 已经创建了一个全新的文件并且自动加上了所有的 bundles.
+当 webpack bundles 你的源代码时，很难追踪原始位置的错误衙警告。例如，你有把三个源文件 (a.js, b.js 和 c.js) bundle 成一个 bundle (bundle.js)，其中一个源文件包含一个错误，栈追踪仅指向 `bundle.js`。这不怎么有帮助，因为你想确切地知道错误来自哪个源文件。
 
-如果你了解 `HtmlWebpackPlugin` 提供的所有特色和选项，那你可以参考下 [HtmlWebpackPlugin](https://github.com/jantimon/html-webpack-plugin).
+为了使得追踪错误和警告简单，JavaScript 提供 [source maps](http://blog.teamtreehouse.com/introduction-source-maps), 将编译后的代码映射回源代码。如果错误来源于 b.js, Source Map 将告诉你他在哪。
 
-你也可以看下 [html-webpack-templte](https://github.com/jaketrent/html-webpack-template) 看年除了默认的模板外还有什么额外的特色。
+source maps 有很多[不同的选项](https://webpack.js.org/configuration/devtool), 看下以配置你需要的。
 
-## 清理 `/dist` 文件夹
+本指南，我们用 `inline-source-map` 选项，这样做解释有好处 (然而不能用于生产)：
 
-你可能已经注意到了从之前的指南和 代码示例，我们的 `/dist` folder 已经变得乱七八槽了。Webpack 生成文件并将他们放在 `dist` 目录下，但他不追踪哪个文件在我们项目中真的用到。
+现在打开 `index.html` 点击 button 找下控制台上显示错误的地方。错误应该和下面的差不多：
 
-通常每次 build 都清理下 `/dist` 文件夹是个很好的实践，因此只有用到的文件才会生成。让我们负起责任来。
+```console
+Uncaught ReferenceError: cosnole is not defined
+    at HTMLButtonElement.printMe (print.js:2)
+```
 
-一个很流行的管理这个的插件是 [clean-webpack-plugin](https://www.npmjs.com/package/clean-webpack-plugin), 让我们安装并配置他。
+我们可以看到错误包含指向文件的引用 (print.js) 和错误出现的行号 (2)。这很棒，我们精确地知道去哪里修复问题。
 
-现在你运行 `npm run build` 并视察 `/dist` 目录，如果一切顺利你将会看到生成的文件并且不再有老文件了！
+## Choosing a Development Tool
 
-## Manifest
+一些编辑器有 `safe write` 功能，可能会于以下的一引起工具交互。读下 [Adjusting Your text Editor](https://webpack.js.org/guides/development/#adjusting-your-text-editor) 寻找此问题的解决方法。
 
-你可能会好奇 webpack 及其插件似乎知道该该生成什么文件。答案在 webpack 追踪的 manifest 以便知道所有的模块是如何生成到输出 bundles 的。可用 [WebpackManifestPlugin](https://github.com/danethurber/webpack-manifest-plugin) 将 manifest 数据提取成 json 文件以便研究一下。
+每次你想编译代码时手动运行 `npm run build` 很麻烦。
 
-We won't go through a full example of how to use this plugin within your projects, but you can read up on [the concept page](https://webpack.js.org/concepts/manifest) and the [caching guid](https://webpack.js.org/guides/caching) to find out how this ties into long term caching.
+webpack 提供了一些不同的选项当你的代码变化时来帮助你自动编译代码：
 
-## Conclusion
+1.webpack 的 Watch Mode
 
-现丰你已学习了如何动态地往 HTML 添加 bundles, 让我们进入下一章 [Development](https://webpack.js.org/guides/development) 吧。如果你想学习更高级的话题，我们建议你跳至 [Code Splitting](https://webpack.js.org/guides/code-splitting) 指南。
+2.webpack-dev-server
+
+3.webpack-dev-middleware
+
+大多情形下，你可能想要使用 `webpack-dev-server`, 但是让我们都探索下。
+
+### Using Watch Mode
+
+你可以指令 webpack 监测你的依赖图表中所有文件的变化。如果其中一个文件更新了，代码将会被重新编译，所以你不必手动运行编译命令。
+
+让我们添加一个 npm 脚本来启动 webpack 的 watch 模式:
+
+现在你可以运行 `npm run watch`，webpack 会编译你的代码，但是不从命令行退出。这是因为脚本仍在监测你的文件。
+
+唯一不好的是你不得不重新刷新页面查看变化。如果这也能自动那多好啊，所以试下 `webpack-dev-server`, 他将做这些工作。
+
+## 使用 webpack-dev-server
+
+webpack-dev-server 提供一个简单的服务器和时时刷新的能力。让我们设置下
+
+```terminal
+npm install --save-dev webpack-dev-server
+```
+
+更改一下文件告诉 dev server 去哪里查找文件：
+
+```js webpack.config.js
+  const path = require('path');
+  const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+  module.exports = {
+      entry: {
+          app: './src/index.js',
+          print: './src/print.js'
+      },
+      devtool: 'inline-source-map',
+      +devServer: {+contentBase: './dist' +
+      },
+      plugins: [
+          new CleanWebpackPlugin(['dist']),
+          new HtmlWebpackPlugin({
+              title: 'Development'
+          })
+      ],
+      output: {
+          filename: '[name].bundle.js',
+          path: path.resolve(__dirname, 'dist')
+      }
+  };
+```
+
+这告诉 `webpack-dev-server` 在 `locahost:8080` 服务 `dist` 目录中的文件。
+
+让我也添加一个运行 dev server 的脚本：
+
+```json package.json
+{
+    "name": "development",
+    "version": "1.0.0",
+    "description": "",
+    "main": "webpack.config.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "watch": "webpack --progress --watch",
+        +"start": "webpack-dev-server --open"
+        "build": "webpack"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "css-loader": "^0.28.4",
+        "csv-loader": "^2.1.1",
+        "file-loader": "^0.11.2",
+        "html-webpack-plugin": "^2.29.0",
+        "style-loader": "^0.18.2",
+        "webpack": "^3.0.0",
+        "xml-loader": "^1.2.1"
+    }
+}
+```
+
+现在运行在命令行运行  `npm start`，你将会看到我们的浏器自动加载页面，如果你改变的源代码并保存他们，web server 将在代码编译后自动重载。试一试！
+
+`webpack-dev-server` 有很多可配置的选项。更多参考下[文档](https://webpack.js.org/configuration/dev-server).
+
+现在你的服务器已经工作了，你可能想试下 [Hot Module Replacement](https://webpack.js.org/guides/hot-module-replacement).
+
+### 使用 webpack-dev-middleware
+
+对 `webpack-dev-middleware`? 我们需要你的帮助！请提交一份 PR 和例子来填补这缺失的说明。请确保简单些，因此这篇指南是为初学者准备的。
+
+## 调整你的编辑器
+
+当自动编译代码时，保存文件时你可能遇到问题。一些编辑器有 "safe write" 模式可能潜在地干扰编译。
+
+要禁用一些常见的编辑器中的这样的特色，见下：
+
+`Sublime Text 3`： 给用户偏好添回 `atomic_save: "false"`
+`IntelliJ`: 在偏好中搜索 "safe write" 并禁用他。
+`Vim` 往设置添加 `:set backupcopy=yes`。
+`WebStorm` 在 `Preferences > Appearence & Behavior > System Settings` 中去掉 `safe write` 选择框的钩子。
+
+## 总结
+
+既然你已学会自动编译代码和运行一个简单的开发服务器，你可以看下一篇指南，我们会讲 [Hot Module Replacement](https://webpack.js.org/guides/hot-module-replacement).
