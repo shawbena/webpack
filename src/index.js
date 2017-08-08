@@ -14,8 +14,17 @@ function component(){
 
     return element;
 }
+let element = component();
+appendChild(element);
 
-appendChild(component());
+if(module.hot){ //?
+    module.hot.accept('./print.js', function(){
+        console.log('Accepting the update printMe module!');
+        element.remove();
+        element = component(); //re-render the "component" to update the click handler
+        appendChild(element);
+    });
+}
 
 function appendChild(childElement){
     document.body.appendChild(childElement);

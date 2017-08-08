@@ -1,11 +1,11 @@
 let path = require('path');
+let webpack = require('webpack');
 let HtmlWebpackPlugin = require('html-webpack-plugin');
 let CleanWebpackPlugijn = require('clean-webpack-plugin');
 
 module.exports = {
     entry: {
         app: './src/index.js',
-        print: './src/print.js'
     },
     output: {
         filename: './dist/[name].bundle.js',
@@ -70,15 +70,16 @@ module.exports = {
     },
     devtool: 'inline-source-map',
     devServer: {
-        contentBase: './'
+        contentBase: './',
+        hot: true
     },
     plugins: [
         new HtmlWebpackPlugin({
-            title: 'Development',
+            title: 'Hot Module Replacement',
             filename: 'index.html',
             // template: 'src/index.html'
         }),
-        new CleanWebpackPlugijn(['dist'])
+        new CleanWebpackPlugijn(['dist']),
+        new webpack.HotModuleReplacementPlugin()
     ],
-    // devtool: 'inline-source-map'
 };

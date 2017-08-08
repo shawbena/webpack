@@ -1,143 +1,132 @@
-# Development
+# Hot Module Replacement
 
-这篇指南是在 [Output Management](https://webpack.js.org/guides/output-management) 指南上扩展的。
+这篇指南是在 `Development` 指南上扩展的。
 
-如果你一直在跟进指南，你应该对 webpack 的基础有牢固的理解。在开始前，让我们研究下设置个开发环境来使我们的工作更加轻松。
+Hot Module Replacement (或 HMR) 是 webpack 提供的最有用的特色之一。他允许所有种类的模块更新而不需要完整的刷新。本页关注于实现，[concept page](https://webpack.js.org/concepts/hot-module-replacement).
 
-本指南中的的工具仅适用于开发，生产中请避免使用！！
+HMR 并非为生产设计，这意味关他应该只用于开发。详见 [building production guid](https://webpack.js.org/guides/production).
 
-## Using source maps
+## 启用 HMR
 
-当 webpack bundles 你的源代码时，很难追踪原始位置的错误衙警告。例如，你有把三个源文件 (a.js, b.js 和 c.js) bundle 成一个 bundle (bundle.js)，其中一个源文件包含一个错误，栈追踪仅指向 `bundle.js`。这不怎么有帮助，因为你想确切地知道错误来自哪个源文件。
+这个特色对生产力帮助很大。我们需要做的是更新 webpack-dev-server 配置，使用 webpack 内置的 HMR 插件。我们也会移除 `print.js` 的入口点，`print.js` will be consumed by the `index.js` 模块。
 
-为了使得追踪错误和警告简单，JavaScript 提供 [source maps](http://blog.teamtreehouse.com/introduction-source-maps), 将编译后的代码映射回源代码。如果错误来源于 b.js, Source Map 将告诉你他在哪。
+你也可以用 CLI 修改 webpack-dev-server 配置：
 
-source maps 有很多[不同的选项](https://webpack.js.org/configuration/devtool), 看下以配置你需要的。
+`webpack-dev-server --hotOnly`
 
-本指南，我们用 `inline-source-map` 选项，这样做解释有好处 (然而不能用于生产)：
+从命令行运行 `npm start` 启动他。
 
-现在打开 `index.html` 点击 button 找下控制台上显示错误的地方。错误应该和下面的差不多：
+现在我们更新 `index.jhs` 文件，当侦测到 `print.js` 变化时，我们告诉 webpack 接受更新的模块。
+
+```js index.js
+  import _ from 'lodash';
+  import printMe from './print.js';
+
+  function component() {
+    var element = document.createElement('div');
+    var btn = document.createElement('button');
+
+    element.innerHTML = _.join(['Hello', 'webpack'], ' ');
+
+    btn.innerHTML = 'Click me and check the console!';
+    btn.onclick = printMe;
+
+    element.appendChild(btn);
+
+    return element;
+  }
+
+  document.body.appendChild(component());
++
++ if (module.hot) {
++   module.hot.accept('./print.js', function() {
++     console.log('Accepting the updated printMe module!');
++     printMe();
++   })
++ }
+```
+
+更改 `print.js` 中的 `console.log`，你会发现流览器的控制台有以下输出。
+
+```js print.js
+ export default function printMe(){
+-     console.log('I get called from print.js!');
++     console.log('Updating print.js...');
+ }
+``
 
 ```console
-Uncaught ReferenceError: cosnole is not defined
-    at HTMLButtonElement.printMe (print.js:2)
+[HMR] Waiting for update signal from WDS...
+main.js:4395 [WDS] Hot Module Replacement enabled.
++2main.js:4395 [WDS] App updated. Recompiling...
++ main.js:4395 [WDS] App hot update...
++ main.js:4330 [HMR] Checking for updates on the server...
++ main.js:10024 Accepting the updated printMe module!
++ 0.4b8ee77….hot-update.js:10 Updating print.js...
++ main.js:4330 [HMR] Updated modules:
++ main.js:4330 [HMR]  - 20
++ main.js:4330 [HMR] Consider using the NamedModulesPlugin for module names.
 ```
 
-我们可以看到错误包含指向文件的引用 (print.js) 和错误出现的行号 (2)。这很棒，我们精确地知道去哪里修复问题。
+## Gotchas
 
-## Choosing a Development Tool
+当我们只更新 `print.js` 时， 点击页面的 button 按钮，你会发现控制台打印的是老的 `printMe` 函数。
 
-一些编辑器有 `safe write` 功能，可能会于以下的一引起工具交互。读下 [Adjusting Your text Editor](https://webpack.js.org/guides/development/#adjusting-your-text-editor) 寻找此问题的解决方法。
+这是因为 `index.js` 没有更新，button 的 click 事件，仍绑定着原始的 `printMe` 函数。你可以使用 `module.hot.accept` 更新新绑定新的 `printMe` 函数。
 
-每次你想编译代码时手动运行 `npm run build` 很麻烦。
+```js
 
-webpack 提供了一些不同的选项当你的代码变化时来帮助你自动编译代码：
+  import _ from 'lodash';
+  import printMe from './print.js';
 
-1.webpack 的 Watch Mode
+  function component() {
+    var element = document.createElement('div');
+    var btn = document.createElement('button');
 
-2.webpack-dev-server
+    element.innerHTML = _.join(['Hello', 'webpack'], ' ');
 
-3.webpack-dev-middleware
+    btn.innerHTML = 'Click me and check the console!';
+    btn.onclick = printMe;  // onclick event is bind to the original printMe function
 
-大多情形下，你可能想要使用 `webpack-dev-server`, 但是让我们都探索下。
+    element.appendChild(btn);
 
-### Using Watch Mode
+    return element;
+  }
 
-你可以指令 webpack 监测你的依赖图表中所有文件的变化。如果其中一个文件更新了，代码将会被重新编译，所以你不必手动运行编译命令。
+- document.body.appendChild(component());
++ let element = component(); // Store the element to re-render on print.js changes
++ document.body.appendChild(element);
 
-让我们添加一个 npm 脚本来启动 webpack 的 watch 模式:
-
-现在你可以运行 `npm run watch`，webpack 会编译你的代码，但是不从命令行退出。这是因为脚本仍在监测你的文件。
-
-唯一不好的是你不得不重新刷新页面查看变化。如果这也能自动那多好啊，所以试下 `webpack-dev-server`, 他将做这些工作。
-
-## 使用 webpack-dev-server
-
-webpack-dev-server 提供一个简单的服务器和时时刷新的能力。让我们设置下
-
-```terminal
-npm install --save-dev webpack-dev-server
+  if (module.hot) {
+    module.hot.accept('./print.js', function() {
+      console.log('Accepting the updated printMe module!');
+-     printMe();
++     document.body.removeChild(element);
++     element = component(); // Re-render the "component" to update the click handler
++     document.body.appendChild(element);
+    })
+  }
 ```
 
-更改一下文件告诉 dev server 去哪里查找文件：
+这仅仅是一个例子而已，还有很多能轻轻松松把人们绊倒。幸运的是，我们有很多的 loader (一些下面会讲到) 会使得 HMR 更简单。
 
-```js webpack.config.js
-  const path = require('path');
-  const HtmlWebpackPlugin = require('html-webpack-plugin');
+## HMR with Stylesheets
 
-  module.exports = {
-      entry: {
-          app: './src/index.js',
-          print: './src/print.js'
-      },
-      devtool: 'inline-source-map',
-      +devServer: {+contentBase: './dist' +
-      },
-      plugins: [
-          new CleanWebpackPlugin(['dist']),
-          new HtmlWebpackPlugin({
-              title: 'Development'
-          })
-      ],
-      output: {
-          filename: '[name].bundle.js',
-          path: path.resolve(__dirname, 'dist')
-      }
-  };
-```
+## Other Code and Framework
 
-这告诉 `webpack-dev-server` 在 `locahost:8080` 服务 `dist` 目录中的文件。
+There are many other loaders and examples out in the community to make HMR interact smoothly with a variety of frameworks and libraries...
 
-让我也添加一个运行 dev server 的脚本：
+[React Hot Loader](https://github.com/gaearon/react-hot-loader): Tweak react components in real time.
 
-```json package.json
-{
-    "name": "development",
-    "version": "1.0.0",
-    "description": "",
-    "main": "webpack.config.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "watch": "webpack --progress --watch",
-        +"start": "webpack-dev-server --open"
-        "build": "webpack"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "devDependencies": {
-        "css-loader": "^0.28.4",
-        "csv-loader": "^2.1.1",
-        "file-loader": "^0.11.2",
-        "html-webpack-plugin": "^2.29.0",
-        "style-loader": "^0.18.2",
-        "webpack": "^3.0.0",
-        "xml-loader": "^1.2.1"
-    }
-}
-```
+[Vue Loader](https://github.com/vuejs/vue-loader): This loader supports HMR for vue components out of the box.
 
-现在运行在命令行运行  `npm start`，你将会看到我们的浏器自动加载页面，如果你改变的源代码并保存他们，web server 将在代码编译后自动重载。试一试！
+[Elm Hot Loader](https://github.com/fluxxu/elm-hot-loader): Supports HMR for the Elm programming language.
+[Redux HMR](https://survivejs.com/webpack/appendices/hmr-with-react/#configuring-hmr-with-redux): No loader or plugin necessary! A simple change to your main store file is all that's required.
 
-`webpack-dev-server` 有很多可配置的选项。更多参考下[文档](https://webpack.js.org/configuration/dev-server).
+[Angular HMR](https://github.com/AngularClass/angular-hmr): No loader necessary! A simple change to your main NgModule file is all that's required to have full control over the HMR APIs.
+If you know of any other loaders or plugins that help with or enhance Hot Module Replacement please submit a pull request to add to this list!
 
-现在你的服务器已经工作了，你可能想试下 [Hot Module Replacement](https://webpack.js.org/guides/hot-module-replacement).
+## Further Reading
 
-### 使用 webpack-dev-middleware
-
-对 `webpack-dev-middleware`? 我们需要你的帮助！请提交一份 PR 和例子来填补这缺失的说明。请确保简单些，因此这篇指南是为初学者准备的。
-
-## 调整你的编辑器
-
-当自动编译代码时，保存文件时你可能遇到问题。一些编辑器有 "safe write" 模式可能潜在地干扰编译。
-
-要禁用一些常见的编辑器中的这样的特色，见下：
-
-`Sublime Text 3`： 给用户偏好添回 `atomic_save: "false"`
-`IntelliJ`: 在偏好中搜索 "safe write" 并禁用他。
-`Vim` 往设置添加 `:set backupcopy=yes`。
-`WebStorm` 在 `Preferences > Appearence & Behavior > System Settings` 中去掉 `safe write` 选择框的钩子。
-
-## 总结
-
-既然你已学会自动编译代码和运行一个简单的开发服务器，你可以看下一篇指南，我们会讲 [Hot Module Replacement](https://webpack.js.org/guides/hot-module-replacement).
+[Concepts - Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement)
+[API - Hot Module Replacement](https://webpack.js.org/api/hot-module-replacement)
