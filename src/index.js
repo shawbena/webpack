@@ -14,7 +14,7 @@ function component(){
 
     return element;
 }
-let element = component();
+var element = component();
 appendChild(element);
 
 if(module.hot){ //?
