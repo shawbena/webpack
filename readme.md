@@ -1,7 +1,5 @@
 # webpack-guid
 
-# webpack guid
-
 basically complete
 
 concepts and configuration will begin:
