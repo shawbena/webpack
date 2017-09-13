@@ -18,8 +18,8 @@ let common = {
 };
 let development = Merge(common, {
     output: {
-        filename: './dist/[name][chunkhash].bundle.js',
-        sourceMapFilename: './dist/[name][chunkhash].map'
+        filename: './dist/[name][chunkhash].js',
+        sourceMapFilename: './dist/[name][chunkhash].js.map'
     },
     devtool: 'inline-source-map',
     devServer: {
@@ -31,7 +31,7 @@ let development = Merge(common, {
 let production = Merge(common, {
     output: {
         filename: './dist/[name].min.js',
-        sourceMapFilename: './dist/[name].min.map'
+        sourceMapFilename: './dist/[name].min.js.map'
     },
     plugins: [
         new webpack.optimize.UglifyJsPlugin({
