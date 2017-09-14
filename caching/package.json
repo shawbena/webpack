@@ -1,0 +1,21 @@
+{
+  "name": "caching",
+  "version": "1.0.0",
+  "description": "这篇文章源自 [getting started](https://webpack.js.org/guides/getting-started), [output management](https://webpack.js.org/guides/output-management) 和 [code splitting](https://webpack.js.org/guides/code-splitting).",
+  "main": "webpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "clean-webpack-plugin": "^0.1.16",
+    "html-webpack-plugin": "^2.30.1",
+    "webpack": "^3.5.6"
+  }
+}
