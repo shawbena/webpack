@@ -1,0 +1,17 @@
+{
+  "name": "authoring-a-library",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/webpack-number.js",
+  "module": "src/index.jas",
+  "scripts": {
+    "build": "webpack"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "lodash": "^4.17.4",
+    "webpack": "^3.7.1"
+  }
+}
