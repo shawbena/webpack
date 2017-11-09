@@ -43,7 +43,3 @@ end & review /guids
 complete /concepts
 
 /configuration, /api, /plugins next
-
-## pratice project
-
-my webpack-guid-project
