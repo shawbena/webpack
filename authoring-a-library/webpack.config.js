@@ -5,7 +5,7 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'webpack-number.js',
-        // library: 'WebpackNumbers',
+        library: 'WebpackNumbers',
         libraryTarget: 'umd'
     },
     externals: {

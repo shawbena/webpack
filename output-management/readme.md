@@ -1,11 +1,3 @@
 # webpack-guid
 
-basically complete
-
-concepts and configuration will begin:
-
-module resolution
-
-webpack react
-
-development full-version webpack config
+这篇指南扩展 [Asset Management](/guides/asset-management) 的示例

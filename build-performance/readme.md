@@ -103,21 +103,70 @@
 
 ### Devtool
 
+对不同 `devtool` 设置的不同性能区别要有意识。
+
+- `"eval"` 有最佳性能，but doesn't assist you for transpired code.
+
+- `cheap-source-map` 变种性能表现好一点，如果你能忍受有点差劲的 mapping 质量的话
+
+- 使用 `cheap-module-eval-source-map` 变种用于渐进构建
+
+=> 大多情况下 `cheap-module-eval-source-map` 是最佳的选择。
+
 ### Avoid Production Specific Tooling
 
-### Minimal Entry Chunk
+某些工具，plugins 和 loader 仅当生产构建时有用。如在开发时用 `UglifyJsPlugin` minify 和 mangle 你的代码没什么意义。这些工具通常不应该用在开发中：
+
+- `UglifyJsPlugin`
+
+- `ExtractTextPlugin`
+
+- `[hash] / [chunkhash]`
+
+- `AggreesiveSplittingPlugin`
+
+- `AggreesiveMergingPlugin`
+
+- `ModuleConcatentionPlugin`
+
+### Minimal EntryChunk
 
 ## Production
 
+以下步骤在生产中特别有用。
+
+*别为了一点小小的性能牺牲了应用的质量！*
+
+记住大多情况下质量的优化比性能的优化更重要。
+
 ### Multiple Compilations
+
+When using multiple compilations the following tools can help:
+
+- parallel-webpack: It allows to do compilation in a worker pool.
+- cache-loader: The cache can be shared between multiple compilations.
 
 ### Source Maps
 
+Source maps 开销真的很大。你真的需要他们吗？
+
 ## Specific Tooling Issues
+
+以下工具有某些问题会降低构建性能。
 
 ### Babel
 
+- 最小化 preset/plugins 的数量
+
 ### Typescript
 
+- 使用 `fork-ts-checker-webpack-plugin` 在单独进程中进行类型检查
+
+- 配置 loaders 跳过类型检查
+
+- 使用 `ts-loader` 用 `happyPackMode: true` / `transpileOnly: true`
+
 ### Sass
+
+`node-sass` 有个 bug 会阴塞 Node.js 线程池中的线程。当他和设置 `workerParallelJobs: 2` 的 `thread-loader` 一起使用时。
 

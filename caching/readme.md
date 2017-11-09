@@ -8,9 +8,9 @@
 
 ## Output Filenames
 
-确保济览器拾取变化的文件的简单方式是用 `output.filename` 代替法。`[hash]` 替换可用于在文件名中包括构建特写的 hash, 然而使用 `[chunkhash]` 替换，在文件名中包含一个 chunk 特写的 hash 更好。
+确保济览器拾取变化的文件的简单方式是用 `output.filename` 代替。`[hash]` 替换可用于在文件名中包括构建特定的 hash, 然而使用 `[chunkhash]` 替换，在文件名中包含一个 chunk 特写的 hash 更好。
 
-让我们用来自 [getting started](https://webpack.js.org/guides/getting-started) 的例子子和来自 [output management](https://webpack.js.org/guides/output-management) 的 `plugins` 所以我们不必手动维护我们的 `index.html` 文件。
+让我们用来自 [getting started](https://webpack.js.org/guides/getting-started) 的例子和来自 [output management](https://webpack.js.org/guides/output-management) 的 `plugins` 来建起我们的项目，因此我们不必手动维护我们的 `index.html` 文件。
 
 project
 

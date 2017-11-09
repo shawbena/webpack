@@ -16,7 +16,7 @@ module.exports = {
     },
     
     plugins: [
-        new CleanWebpackPlugin(['dist']),
+        // new CleanWebpackPlugin(['dist']),
         new HtmlWebpackPlugin({
             title: 'Caching',
             filename: path.resolve(__dirname, 'index.html'),
