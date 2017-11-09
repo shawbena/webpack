@@ -21,28 +21,17 @@ webapck-hot-middleware
 
 ##
 
-migrating.md
-
 public-path.md
 
 typescript.md
 
-module-resolution, webpack, node
-
-nodejs modules
-
 eslint-loader
 
-##
-
-markdown 中的 ** 应该和 __ 是同样的意思？
-
-
-## 
 
 `BannerPlugin` 开发库时可能会用到
 
 /concepts/targets
+
 DirectoryNameWebpackPlugin
 
 Promise
