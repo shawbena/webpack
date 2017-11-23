@@ -38,10 +38,6 @@ Promise
 
 ## plans
 
-end & review /guids
-
-complete /concepts
-
-/configuration, /api, /plugins next
-
 /api/module-methods
+
+ContextReplacementPlugin
